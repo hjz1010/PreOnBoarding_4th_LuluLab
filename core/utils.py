@@ -1,8 +1,8 @@
 import re
-import datetime
 from enum import Enum
+from django.utils import timezone
 
-DATE_TODAY = datetime.date.today()
+DATE_TODAY = timezone.localdate()
 
 class ReservationTypeEnum(Enum): 
     TREATMENT = 1 # 진료..치료?
@@ -17,6 +17,11 @@ def check_vaild_name_format(value):
     REGEX_NAME = '^[가-힣]{2,5}$'
     if not re.match(REGEX_NAME, value):
         raise ValueError("INVALID_NAME")
+    
+def check_valid_contact_format(value):
+    REGEX_CONTACT = '^(?:(010-\d{4})|(01[1|6|7|8|9]-\d{3,4}))-(\d{4})$'
+    if not re.match(REGEX_CONTACT, value):
+        raise ValueError("INVALID_CONTACT")
 
 def check_valid_date_format(value):
     REGEX_DATE = '^(19[0-9][0-9]|20\d{2})-(0[0-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$'
