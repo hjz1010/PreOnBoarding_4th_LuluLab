@@ -177,7 +177,7 @@ $ poetry run python manage.py runserver
 
 
 ## 🏥 API DOC
-👉 [Postman API DOC](https://documenter.getpostman.com/view/22579998/2s8479zwn1)
+👉 [Postman API DOC](https://documenter.getpostman.com/view/15423127/2s847BUwDG#18a3954c-9be9-4658-b9ee-6be05d9c8a84)
 
 
 
