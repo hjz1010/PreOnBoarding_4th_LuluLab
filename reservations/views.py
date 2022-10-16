@@ -1,5 +1,4 @@
 import json
-import uuid
 import datetime
 
 from django.http       import JsonResponse
@@ -93,16 +92,33 @@ class ReservationView(View):
             date                = data['date']
             time_id             = Time.objects.get(id=data['time_id'])
                         
+            # 이름, 연락처, 생년월일, 날짜 유효성 체크
+            check_vaild_name_format(booker_name)
+            check_valid_contact_format(booker_phone)
+            check_vaild_name_format(patient_name)
+            check_valid_date_format(patient_birth)
+            check_valid_date_format(date)
+            
+            # 당일 예약 불가
+            if date <= str(DATE_TODAY):
+                return JsonResponse({'message': f'CHOOSE_ANY_DAY_AFTER_{str(DATE_TODAY)}'}, status=400)
+            
+            # 연락처 중복 불가
+            already_exist_contact = User.objects.filter(contact=booker_phone)
+            
+            if already_exist_contact.exists():
+                user_name = [user.name for user in already_exist_contact]
+                if user_name[0] != booker_name:
+                    return JsonResponse({'message': 'SAME_CONTACT_ALREADY_EXIST'}, status=409)
+
             with transaction.atomic():
                 # 1. 먼저 예약자 테이블에 예약자 생성 or 가져오기
                 booker, is_created = User.objects.get_or_create(
                     name         = booker_name,
-                    contact      = booker_phone,
-                    is_blacklist = False 
+                    contact      = booker_phone
                 )
-                            
-                # 2. 중복 예약 불가
-                # 동일 예약 검사 : 예약자 + 환자 이름 + 환자 생년월일 + 병원 + 날짜 + 시간이 똑같나 확인
+                                        
+                # 2. 중복 예약 불가 : 예약자 + 환자 이름 + 환자 생년월일 + 병원 + 날짜 + 시간 일치 여부 확인
                 already_exist_revervation = Reservation.objects.filter(
                                                 customer      = booker,
                                                 patient_name  = patient_name,
@@ -114,27 +130,29 @@ class ReservationView(View):
                     
                 if already_exist_revervation:
                     return JsonResponse({'message': 'SAME_RESERVATION_ALREADY_EXIST'}, status=409)
-                                    
+                            
+                reservation_code = str(booker.id)+str(hospital_id.id)+date.replace('-','')+str(time_id.id)
+                
                 # 3. 예약하기
                 Reservation.objects.create(
-                    reservation_number = str(booker.id)+str(hospital_id.id)+date.replace('-','')+str(time_id.id),
+                    reservation_number = reservation_code,
                     customer           = booker,
                     patient_name       = patient_name,
                     patient_birth      = patient_birth,
                     hospital           = hospital_id,
                     reservation_type   = reservation_type_id,
-                    reservation_status = ReservationStatus.objects.get(id=1),  # 기본값 설정 안했으니까 1번값(예약완료)으로 넣기
+                    reservation_status = ReservationStatus.objects.get(id=ReservationStatusEnum.RESERVED.value),
                     date               = date,
                     time               = time_id,
                 )
                 
                 reservation_result = {
-                    'reservation_code' : '예약코드',  # 팀원들과 의논하기
-                    'booker_name' : booker.name
+                    'reservation_code': reservation_code,
+                    'booker_name'     : booker.name
                 }
             
             return JsonResponse({'message': 'SUCCESS', 'reservation_result': reservation_result}, status=201)
-
+        
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
         except Hospital.DoesNotExist:
@@ -143,6 +161,8 @@ class ReservationView(View):
             return JsonResponse({'message': 'RESERVATION_TYPE_DOES_NOT_EXIST'}, status=404)
         except Time.DoesNotExist:
             return JsonResponse({'message': 'TIME_DOES_NOT_EXIST'}, status=404)
+        except ValueError as error:
+            return JsonResponse({'message': f'{error}'.strip("'")}, status = 400)
 
     def patch(self, request, reservation_number):
         '''
