@@ -189,7 +189,7 @@ class ReservationView(View):
                 check_valid_date_format(new_date)
                 #변경하려는 날짜는 내일 이후여야 함
                 if new_date <= str(DATE_TODAY):
-                    return JsonResponse({'message': f'CHOOSE_ANY_DAY_AFTER_{str(DATE_TODAY)}'}, status=400)
+                    return JsonResponse({'message': f'CHOOSE_ANY_DAY_FROM_{str(DATE_TOMORROW)}'}, status=400)
                 new_time = Time.objects.get(id=new_time_id)
 
             if new_reservation_type_id:

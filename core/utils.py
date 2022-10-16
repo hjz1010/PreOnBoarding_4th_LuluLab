@@ -2,7 +2,8 @@ import re
 from enum         import Enum
 from django.utils import timezone
 
-DATE_TODAY = timezone.localdate()
+DATE_TODAY    = timezone.localdate()
+DATE_TOMORROW = DATE_TODAY + timezone.timedelta(days=1)
 
 # 예약 가능한 날짜 : 익일 ~ 일주일  
 ADD_TO_START_DATE = 1
