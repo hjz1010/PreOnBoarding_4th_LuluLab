@@ -12,6 +12,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
+SMS_SERVICE_ID = os.environ.get("SMS_SERVICE_ID")
+
+SMS_SERVICE_SECRET_KEY = os.environ.get("SMS_SERVICE_SECRET_KEY")
+
+FROM_NUMBER = os.environ.get("FROM_NUMBER")
+
+ACCESS_KEY_ID = os.environ.get("ACCESS_KEY_ID")
+
+NAVER_SECRET_KEY = os.environ.get("NAVER_SECRET_KEY")
+
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
