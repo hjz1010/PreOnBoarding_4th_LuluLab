@@ -7,3 +7,4 @@ urlpatterns = [
     path('/hospitals', HospitalListView.as_view()),
     path('', ReservationView.as_view()),
     path('/<str:reservation_number>', ReservationView.as_view())
+]
