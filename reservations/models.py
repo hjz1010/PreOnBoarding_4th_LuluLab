@@ -1,3 +1,5 @@
+from email.policy import default
+from enum import unique
 from django.db import models
 
 from core.models import TimeStampModel
@@ -41,6 +43,7 @@ class Hospital(models.Model):
 	name          = models.CharField(max_length= 50)
 	address       = models.CharField(max_length=100)
 	contact       = models.CharField(max_length=50)
+	is_available  = models.BooleanField(default=1)
 	hospital_type = models.ForeignKey('HospitalType', on_delete=models.CASCADE)
 	province      = models.ForeignKey('Province', on_delete=models.CASCADE)
 
@@ -49,7 +52,7 @@ class Hospital(models.Model):
 
 
 class Reservation(TimeStampModel): 
-	reservation_number = models.CharField(max_length = 100)
+	reservation_number = models.CharField(max_length = 100, unique=True)
 	patient_name       = models.CharField(max_length = 10)
 	patient_birth      = models.DateField()
 	date               = models.DateField()

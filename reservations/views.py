@@ -18,7 +18,7 @@ class HospitalListView(View):
             province_id      = request.GET.get('province', None)
             hospital_type_id = request.GET.get('type', None)
 
-            q = Q()
+            q = Q(is_available = True)
 
             if province_id :
                 Province.objects.get(id=province_id)
