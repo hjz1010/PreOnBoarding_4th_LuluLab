@@ -119,8 +119,8 @@ class ReservationView(View):
             new_patient_name        = data['patient_name']
             new_patient_birth       = data['patient_birth']
             new_date                = data['date']
-            new_time_id             = data['time_id'] # 1-8까지값
-            new_reservation_type_id = data['reservation_type_id'] # 1. 진료 2. 검진
+            new_time_id             = data['time_id']
+            new_reservation_type_id = data['reservation_type_id']
 
             #환자변경: 이름 & 생년원일, 예약날짜변경: 날짜 & 시간 둘다 있어야함
             check_both_or_none(new_patient_name, new_patient_birth, "NAME", "BIRTHDAY")
@@ -132,12 +132,13 @@ class ReservationView(View):
 
             if new_date and new_time_id: 
                 check_valid_date_format(new_date)
-                check_valid_time_id(new_time_id)
                 #변경하려는 날짜는 내일 이후여야 함
                 if new_date <= str(DATE_TODAY):
                     return JsonResponse({'message': f'CHOOSE_ANY_DAY_AFTER_{str(DATE_TODAY)}'}, status=400)
+                new_time = Time.objects.get(id=new_time_id)
 
-            if new_reservation_type_id: check_valid_reservation_type_id(new_reservation_type_id)
+            if new_reservation_type_id:
+                new_reservation_type = ReservationType.objects.get(id=new_reservation_type_id)
 
             #변경하려는 예약
             reservation = Reservation.objects.get(reservation_number=reservation_number)
@@ -159,11 +160,11 @@ class ReservationView(View):
                 )
                 if is_already_exist:
                     return JsonResponse({'message': 'CHOOSE_ANOTHER_DATE_OR_TIME'}, status=400)
-                reservation.date    = new_date
-                reservation.time_id = new_time_id
+                reservation.date = new_date
+                reservation.time = new_time
 
             if new_reservation_type_id:
-                reservation.reservation_type_id = new_reservation_type_id
+                reservation.reservation_type = new_reservation_type
 
             reservation.save()
 
@@ -171,6 +172,10 @@ class ReservationView(View):
 
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status = 400)
+        except ReservationType.DoesNotExist:
+            return JsonResponse({'message': 'RESERVATION_TYPE_DOES_NOT_EXIST'}, status=404)
+        except Time.DoesNotExist:
+            return JsonResponse({'message': 'TIME_DOES_NOT_EXIST'}, status=404)
         except Reservation.DoesNotExist:
             return JsonResponse({'message': 'RESERVATION_DOES_NOT_EXIST'}, status = 404)
         except ValueError as error:
