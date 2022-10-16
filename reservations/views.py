@@ -82,7 +82,7 @@ class ReservationView(View):
                                     
                 # 3. 예약하기
                 Reservation.objects.create(
-                    reservation_number = uuid.uuid4().hex,
+                    reservation_number = str(booker.id)+str(hospital_id.id)+date.replace('-','')+str(time_id.id),
                     customer           = booker,
                     patient_name       = patient_name,
                     patient_birth      = patient_birth,
