@@ -22,7 +22,6 @@ from Lululab.settings    import (
     NAVER_SECRET_KEY
     )
 
-
 # 예약 가능한 병원 목록
 class HospitalListView(View):
     def get(self, request):
@@ -85,7 +84,7 @@ class DateTimeView(View):
                 available_time_list = sorted(list( \
                                         set(opening_time_list)-set(reserved_time_list) ))
                 
-                available_date         = available_date.strftime("%Y-%m-%d")
+                available_date         = available_date.strftime('%Y-%m-%d')
                 result[available_date] = available_time_list
 
             return JsonResponse({'message': 'SUCCESS', 'result': result}, status=200)
@@ -94,22 +93,23 @@ class DateTimeView(View):
 
 class ReservationView(View):
     def	make_signature(self):
-        timestamp = str(int(time_.time() * 1000))
-        access_key = ACCESS_KEY_ID				# access key id (from portal or Sub Account)
+        timestamp  = str(int(time_.time() * 1000))
+        access_key = ACCESS_KEY_ID				    # access key id (from portal or Sub Account)
         secret_key = NAVER_SECRET_KEY				# secret key (from portal or Sub Account)
         secret_key = bytes(secret_key, 'UTF-8')
 
-        method = "POST"
-        uri = "/sms/v2/services/" + SMS_SERVICE_ID + "/messages"
+        method = 'POST'
+        uri    = '/sms/v2/services/' + SMS_SERVICE_ID + '/messages'
 
-        message = method + " " + uri + "\n" + timestamp + "\n"+ access_key
+        message = method + ' ' + uri + '\n' + timestamp + '\n'+ access_key
         message = bytes(message, 'UTF-8')
         signingKey = base64.b64encode(hmac.new(secret_key, message, digestmod=hashlib.sha256).digest())
         return signingKey
 
     def post(self, request):
-        data = json.loads(request.body)
-        try:
+        try: 
+            data = json.loads(request.body)
+
             booker_name         = data['booker_name']
             booker_phone        = data['booker_phone']
             patient_name        = data['patient_name']
@@ -119,7 +119,6 @@ class ReservationView(View):
             date                = data['date']
             time_id             = Time.objects.get(id=data['time_id'])
                         
-            # 이름, 연락처, 생년월일, 날짜 유효성 체크
             check_vaild_name_format(booker_name)
             check_valid_contact_format(booker_phone)
             check_vaild_name_format(patient_name)
@@ -144,6 +143,10 @@ class ReservationView(View):
                     name         = booker_name,
                     contact      = booker_phone
                 )
+                
+                # 블랙리스트는 예약 불가
+                if booker.is_blacklist:
+                    return JsonResponse({'message': f'{booker.name}_IS_BLOCKED_USER'}, status=401)
                                         
                 # 2. 중복 예약 불가 : 예약자 + 환자 이름 + 환자 생년월일 + 병원 + 날짜 + 시간 일치 여부 확인
                 already_exist_revervation = Reservation.objects.filter(
@@ -159,7 +162,6 @@ class ReservationView(View):
                     return JsonResponse({'message': 'SAME_RESERVATION_ALREADY_EXIST'}, status=409)
                             
                 reservation_code = str(booker.id)+str(hospital_id.id)+date.replace('-','')+str(time_id.id)
-                
                 
                 # 3. 예약하기
                 Reservation.objects.create(
@@ -179,34 +181,40 @@ class ReservationView(View):
                     'booker_name'     : booker.name
                 }
 
-            url            = "https://sens.apigw.ntruss.com/sms/v2/services/"+SMS_SERVICE_ID+"/messages"
+            url            = 'https://sens.apigw.ntruss.com/sms/v2/services/'+SMS_SERVICE_ID+'/messages'
             timestamp      = str(int(time_.time() * 1000))
             access_key     = ACCESS_KEY_ID
             signature      = self.make_signature()
 
             headers        = { 
-                "Content-Type"            : "application/json",
-                "x-ncp-apigw-timestamp"	  : timestamp,
+                'Content-Type'            : 'application/json',
+                'x-ncp-apigw-timestamp'	  : timestamp,
                 'x-ncp-iam-access-key'    : access_key,
                 'x-ncp-apigw-signature-v2': signature
             }
 
             body           = {
-                "type"    : "SMS",
-                "from"    : FROM_NUMBER,
-                "countryCode":"82",
-                "messages":[{"to":booker_phone.replace('-',''),}],
-                "content" : "{}님 {}일 {}시 {} {}예약.\n예약번호는 [{}]입니다.".format(booker_name, date, time_id.time.strftime("%H:%M"), hospital_id.name, reservation_type_id.type, reservation_code)
+                'type'       : 'SMS',
+                'from'       : FROM_NUMBER,
+                'countryCode': '82',
+                'messages'   : [{'to':booker_phone.replace('-',''),}],
+                'content'    : '{}님 {}일 {}시 {} {}예약.\n예약번호는 [{}]입니다.'
+                                    .format(
+                                        booker_name, 
+                                        date, 
+                                        time_id.time.strftime('%H:%M'), 
+                                        hospital_id.name, 
+                                        reservation_type_id.type, 
+                                        reservation_code)
             }
 
             body          = json.dumps(body)
             response      = requests.post(url, headers=headers, data=body)
             response_dict = response.json()
-            print(response_dict)
             status_code   = response_dict['statusCode'] if 'statusCode' in response_dict else response_dict['errorMessage']
 
             if int(status_code) != 202:
-                return JsonResponse({"message": "SMS_SEND_FAIL"}, status=400)
+                return JsonResponse({'message': 'SMS_SEND_FAIL'}, status=400)
             
             return JsonResponse({'message': 'SUCCESS', 'reservation_result': reservation_result}, status=201)
         
@@ -219,7 +227,7 @@ class ReservationView(View):
         except Time.DoesNotExist:
             return JsonResponse({'message': 'TIME_DOES_NOT_EXIST'}, status=404)
         except ValueError as error:
-            return JsonResponse({'message': f'{error}'.strip("'")}, status = 400)
+            return JsonResponse({'message': f'{error}'.strip("'")}, status=400)
 
     def patch(self, request, reservation_number):
         '''
@@ -235,8 +243,8 @@ class ReservationView(View):
             new_reservation_type_id = data['reservation_type_id']
 
             #환자변경: 이름 & 생년원일, 예약날짜변경: 날짜 & 시간 둘다 있어야함
-            check_both_or_none(new_patient_name, new_patient_birth, "NAME", "BIRTHDAY")
-            check_both_or_none(new_date, new_time_id, "DATE", "TIME")
+            check_both_or_none(new_patient_name, new_patient_birth,'NAME', 'BIRTHDAY')
+            check_both_or_none(new_date, new_time_id, 'DATE', 'TIME')
 
             if new_patient_name and new_patient_birth: 
                 check_vaild_name_format(new_patient_name)
@@ -280,19 +288,18 @@ class ReservationView(View):
 
             reservation.save()
 
-            return JsonResponse({'message': 'SUCCESS'}, status = 200)
+            return JsonResponse({'message': 'SUCCESS'}, status=200)
 
         except KeyError:
-            return JsonResponse({'message': 'KEY_ERROR'}, status = 400)
+            return JsonResponse({'message': 'KEY_ERROR'}, status=400)
         except ReservationType.DoesNotExist:
             return JsonResponse({'message': 'RESERVATION_TYPE_DOES_NOT_EXIST'}, status=404)
         except Time.DoesNotExist:
             return JsonResponse({'message': 'TIME_DOES_NOT_EXIST'}, status=404)
         except Reservation.DoesNotExist:
-            return JsonResponse({'message': 'RESERVATION_DOES_NOT_EXIST'}, status = 404)
+            return JsonResponse({'message': 'RESERVATION_DOES_NOT_EXIST'}, status=404)
         except ValueError as error:
-            return JsonResponse({'message': f'{error}'.strip("'")}, status = 400)
-
+            return JsonResponse({'message': f'{error}'.strip("'")}, status=400)
 
 
 class ResevationListView(View):
@@ -310,19 +317,18 @@ class ResevationListView(View):
 				reservations = reservation_number_info
 	
 			elif not booker_name.exists() and not reservation_number_info.exists():
-				return JsonResponse({'MESSAGE' : 'RESERVATION_DOES_NOT_EXIST'}, status=404)
+				return JsonResponse({'message' : 'RESERVATION_DOES_NOT_EXIST'}, status=404)
 
 		result = [{
-			'reservation_number' : reservation.reservation_number,
-			'patient_name' : reservation.patient_name,
-			'patient_birth' : reservation.patient_birth,
-			'date' : reservation.date,
-			'customer' : reservation.customer.name,
-			'time' : reservation.time.time,
-			'hospital  ' : reservation.hospital.name,
-			'reservation_type' : reservation.reservation_type.type,
-			'reservation_status' : reservation.reservation_status.status
+			'reservation_number': reservation.reservation_number,
+			'patient_name'      : reservation.patient_name,
+			'patient_birth'     : reservation.patient_birth,
+			'date'              : reservation.date,
+			'customer'          : reservation.customer.name,
+			'time'              : reservation.time.time,
+			'hospital  '        : reservation.hospital.name,
+			'reservation_type'  : reservation.reservation_type.type,
+			'reservation_status': reservation.reservation_status.status
 		}for reservation in reservations]
 
-		return JsonResponse({'result' : result }, status = 200)
-        
+		return JsonResponse({'result' : result}, status=200)
