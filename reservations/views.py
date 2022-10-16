@@ -257,7 +257,7 @@ class ReservationView(View):
             
             #원래 예약 날짜가 오늘 이전이면 변경불가
             if reservation.date <= DATE_TODAY:
-                return JsonResponse({'message': 'RESERVATION_CANNOT_BE_CHANGED'}, status=400)
+                return JsonResponse({'message': 'RESERVATION_CANNOT_BE_CHANGED'}, status=409)
             
             if new_patient_name and new_patient_birth: 
                 reservation.patient_name  = new_patient_name
@@ -271,7 +271,7 @@ class ReservationView(View):
                     time_id     = new_time_id
                 )
                 if is_already_exist:
-                    return JsonResponse({'message': 'CHOOSE_ANOTHER_DATE_OR_TIME'}, status=400)
+                    return JsonResponse({'message': 'CHOOSE_ANOTHER_DATE_OR_TIME'}, status=409)
                 reservation.date = new_date
                 reservation.time = new_time
 
