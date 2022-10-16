@@ -145,7 +145,7 @@ class ReservationView(View):
                     date               = date,
                     time               = time_id,
                 )
-                
+            
                 reservation_result = {
                     'reservation_code': reservation_code,
                     'booker_name'     : booker.name
@@ -235,3 +235,37 @@ class ReservationView(View):
             return JsonResponse({'message': 'RESERVATION_DOES_NOT_EXIST'}, status = 404)
         except ValueError as error:
             return JsonResponse({'message': f'{error}'.strip("'")}, status = 400)
+
+
+
+class ResevationListView(View):
+	def get(self, request):
+		data = json.loads(request.body)
+        # 입력값이 사용자 이름인지 확인.
+		booker_name = User.objects.filter(name = data.get('name_or_number'))
+
+		if booker_name.exists():
+			reservations = Reservation.objects.filter(customer__in = booker_name).order_by('date')
+		# 아니라면 예약 번호인지 확인, 둘다 아니라면 예외 처리
+		else:
+			reservation_number_info = Reservation.objects.filter(reservation_number = data.get('name_or_number'))
+			if reservation_number_info.exists():				
+				reservations = reservation_number_info
+	
+			elif not booker_name.exists() and not reservation_number_info.exists():
+				return JsonResponse({'MESSAGE' : 'RESERVATION_DOES_NOT_EXIST'}, status=404)
+
+		result = [{
+			'reservation_number' : reservation.reservation_number,
+			'patient_name' : reservation.patient_name,
+			'patient_birth' : reservation.patient_birth,
+			'date' : reservation.date,
+			'customer' : reservation.customer.name,
+			'time' : reservation.time.time,
+			'hospital  ' : reservation.hospital.name,
+			'reservation_type' : reservation.reservation_type.type,
+			'reservation_status' : reservation.reservation_status.status
+		}for reservation in reservations]
+
+		return JsonResponse({'result' : result }, status = 200)
+        
