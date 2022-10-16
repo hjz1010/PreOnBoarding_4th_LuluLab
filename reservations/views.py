@@ -236,12 +236,12 @@ class ReservationView(View):
 class ResevationListView(View):
 	def get(self, request):
 		data = json.loads(request.body)
-
+        # 입력값이 사용자 이름인지 확인.
 		booker_name = User.objects.filter(name = data.get('name_or_number'))
 
 		if booker_name.exists():
 			reservations = Reservation.objects.filter(customer__in = booker_name).order_by('date')
-		
+		# 아니라면 예약 번호인지 확인, 둘다 아니라면 예외 처리
 		else:
 			reservation_number_info = Reservation.objects.filter(reservation_number = data.get('name_or_number'))
 			if reservation_number_info.exists():				
