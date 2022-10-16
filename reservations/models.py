@@ -49,7 +49,7 @@ class Hospital(models.Model):
 
 
 class Reservation(TimeStampModel): 
-	reservation_number = models.UUIDField()
+	reservation_number = models.CharField(max_length = 100)
 	patient_name       = models.CharField(max_length = 10)
 	patient_birth      = models.DateField()
 	date               = models.DateField()
