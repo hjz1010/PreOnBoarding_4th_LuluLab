@@ -1,8 +1,12 @@
 import re
-from enum import Enum
+from enum         import Enum
 from django.utils import timezone
 
 DATE_TODAY = timezone.localdate()
+
+# 예약 가능한 날짜 : 익일 ~ 일주일  
+ADD_TO_START_DATE = 1
+ADD_TO_END_DATE = 7
 
 class ReservationTypeEnum(Enum): 
     TREATMENT = 1 # 진료..치료?

@@ -1,4 +1,5 @@
 import json
+import datetime
 
 from django.http       import JsonResponse
 from django.views      import View
@@ -43,6 +44,40 @@ class HospitalListView(View):
             return JsonResponse({'message': 'INVALID_PROVINCE_ID'}, status=404)
         except HospitalType.DoesNotExist:
             return JsonResponse({'message': 'INVALID_TYPE_ID'}, status=404)
+
+# 특정 병원의 예약 가능한 일시
+class DateTimeView(View):
+    def get(self, request, hospital_id):
+        try:
+            Hospital.objects.get(id=hospital_id) # 병원 id값이 유효한지 확인
+
+            result = {}
+            # 예약가능 일시 
+            # { '2022-10-10' : ['9:00', '14:00'],
+            #   '2022-10-11' : ['11:00', '15:00', '16:00'],
+            #   '2022-10-12' : [],
+            #   '2022-10-13' : ['17:00'],
+            #    ...
+            # } 
+
+            for date_to_add in range(ADD_TO_START_DATE, ADD_TO_END_DATE+1):  
+                available_date     = DATE_TODAY + datetime.timedelta(days=date_to_add)
+                
+                opening_time_list  = list(Time.objects.values_list('time', flat=True))
+                reserved_time_list = [reservation.time.time \
+                                        for reservation in Reservation.objects \
+                                            .filter(hospital_id=hospital_id, \
+                                                    date=available_date, \
+                                                    reservation_status_id=ReservationStatusEnum.RESERVED.value)] 
+                available_time_list = sorted(list( \
+                                        set(opening_time_list)-set(reserved_time_list) ))
+                
+                available_date         = available_date.strftime("%Y-%m-%d")
+                result[available_date] = available_time_list
+
+            return JsonResponse({'message': 'SUCCESS', 'result': result}, status=200)
+        except Hospital.DoesNotExist:
+            return JsonResponse({'message': 'INVALID_HOSPITAL_ID'}, status=404)
 
 class ReservationView(View):
     def post(self, request):
