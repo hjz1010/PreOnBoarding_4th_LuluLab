@@ -12,6 +12,7 @@ django-cors-headers = "^3.13.0"
 mysqlclient = "^2.1.1"
 PyMySQL = "^1.0.2"
 cryptography = "^38.0.2"
+requests = "^2.28.1"
 
 [tool.poetry.dev-dependencies]
 django-extensions = "^3.2.1"
