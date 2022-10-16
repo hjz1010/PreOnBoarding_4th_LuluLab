@@ -22,6 +22,8 @@ Django와 MySQL를 이용하여 병원 예약 시스템을 구축했습니다.
 ## 🏥 데이터 모델링
 
 ▶️ [dbdiagram Link](https://dbdiagram.io/d/634921dff0018a1c5f030baa)
+![image](https://user-images.githubusercontent.com/97498663/196033480-18bbc4aa-a7e3-40a9-abfe-c82236d8a9db.png)
+
 
 ## 🏥 프로젝트 실행 방법
 
