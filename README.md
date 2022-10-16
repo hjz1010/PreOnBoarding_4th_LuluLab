@@ -52,10 +52,9 @@ DB_HOST = 'DB호스트주소'
 DB_PORT = 'DB포트번호'
 
 SMS_SERVICE_ID = '네이버 문자서비스 ID'
-SMS_SERVICE_SECRET_KEY = '문자서비스 SECRET_KEY'
 FROM_NUMBER = '문자 발신 번호'
-ACCESS_KEY_ID = '문자서비스 엑세스키'
-NAVER_SECRET_KEY = '네이버 시크릿키'
+ACCESS_KEY_ID = 'Access Key ID' (계정 엑세스 키)
+NAVER_SECRET_KEY = 'Secret Key' (계정 시크릿 키)
 
 # 데이터베이스 테이블 생성
 $ poetry run python manage.py migrate
