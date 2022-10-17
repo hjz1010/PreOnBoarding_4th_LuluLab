@@ -4,7 +4,8 @@
 <img src="https://img.shields.io/badge/Poetry-60A5FA?style=for-the-badge&logo=Poetry&logoColor=white"/>&nbsp;
 <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=MySQL&logoColor=white"/>&nbsp;
 <img src="https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=Postman&logoColor=white"/>&nbsp;
-
+<br>
+<br>
 ## 🏥 프로젝트 소개
 
 원티드 프리온보딩 백엔드 코스 4차 과제 입니다.
@@ -18,11 +19,14 @@ Django와 MySQL를 이용하여 병원 예약 시스템을 구축했습니다.
 - **개발 인원** : 백엔드 4명 (안상현, 음정민, 전은형, 홍현진)
 
 
+<br>
+
 ## 🏥 데이터 모델링
 
 ▶️ [dbdiagram Link](https://dbdiagram.io/d/634921dff0018a1c5f030baa)
 ![image](https://user-images.githubusercontent.com/97498663/196033480-18bbc4aa-a7e3-40a9-abfe-c82236d8a9db.png)
 
+<br>
 
 ## 🏥 프로젝트 실행 방법
 
@@ -64,11 +68,15 @@ $ poetry run python manage.py runserver
 # server start : http://localhost:8000
 ```
 
+<br>
+
 ## 🏥 적용 기술
 
 - Back_End : Python, Django, Poetry, MySQL, Postman
 - Colaboration: Slack, Zep
-  
+
+<br>
+
 
 ## 🏥 구현 기능 소개
 
@@ -77,6 +85,8 @@ $ poetry run python manage.py runserver
 - 이름/예약번호로 조회하기(안상현)
 - 예약 변경하기(음정민)
 - 예약내역 문자 발송(안상현)
+
+<br>
 
 ### 홍현진 (예약 가능한 병원 목록 반환하기, 예약 가능한 날짜와 시간 반환하기)
 
@@ -103,6 +113,8 @@ $ poetry run python manage.py runserver
     3. datetime.now(), timezone.now(), timezone.localtime()    
         기존에 알고 있던 오늘 날짜를 반환하는 방법은 datetime.now()였다. 이번에 구현하는 프로젝트에서는 문제가 없지만, 확장성을 고려하여 timezone이 포함된 Aware 객체를 사용하는 코드로 수정하고 싶었다. 구글링을 하고 결과를 찍어보면서 timezone.now()와 localtime()을 거쳐 최종적으로는 시간값이 없는 timezone.localdate()을 사용하게 되었다.
   
+<br>
+
 ### 안상현 (예약 목록 확인하기, 예약 정보 문자 발송하기)
 ---  
 1. 예약 목록을 확인하는 API
@@ -123,6 +135,8 @@ $ poetry run python manage.py runserver
         
     3. SMS 예약 정보 전송  
         예약 번호로 예약 조회를 할 수 있는 기능이 있는데 실제 사용자들이 예약 번호를 기억하지 못할것 같았다. 응답 값으로 화면에 보여주긴 하지만 따로 저장하지 않고 문자로 예약정보를 전달하면 이후 예약조회를 할 일이 생기면 문자를 보고 간편하게 예약 조회를 할수 있을것 같아 문자메세지로 정보를 전달하게 구현했다.
+
+<br>
 
 ### 음정민 (예약 변경하기)
 
@@ -152,6 +166,7 @@ $ poetry run python manage.py runserver
     3. 예약날짜 변경 제한   
         예약 변경을 지금 시점 기준으로 할지, 오늘 날짜 기준으로 할지 고민했는데 시간이 임박해서 당일에 변경을 하게 되면 병원 입장에서 다른 환자를 받을 수 있었을 시간에 예약이 비게 된다. 무분별한 예약 변경과 취소를 방지하기 위해서 오늘 날짜인 예약은 변경할 수 없도록 했다. 그리고 예약 없이 방문하는 환자를 위해 새로운 예약도 내일날짜부터 가능하도록 했다.
 
+<br>
 
 ### 전은형 (예약 등록하기)
 
