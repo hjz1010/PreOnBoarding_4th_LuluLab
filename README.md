@@ -24,7 +24,8 @@ Django와 MySQL를 이용하여 병원 예약 시스템을 구축했습니다.
 ## 🏥 데이터 모델링
 
 ▶️ [dbdiagram Link](https://dbdiagram.io/d/634921dff0018a1c5f030baa)
-![image](https://user-images.githubusercontent.com/97498663/196033480-18bbc4aa-a7e3-40a9-abfe-c82236d8a9db.png)
+![image](https://user-images.githubusercontent.com/105548720/196084570-1ff1cd9d-f9de-40ea-abbb-3e477d8008e4.png)
+
 
 <br>
 
@@ -195,7 +196,7 @@ $ poetry run python manage.py runserver
 ## 🏥 API DOC
 👉 [Postman API DOC](https://documenter.getpostman.com/view/15423127/2s847BUwDG#18a3954c-9be9-4658-b9ee-6be05d9c8a84)
 
-
+<br>
 
 ## Reference
 
